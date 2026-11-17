@@ -1,0 +1,6 @@
+{
+  "name": "Plant Care Tracker",
+  "description": "Interactive web preview for the Python SQLite Plant Care Tracker, watering scheduler, Azure Blob backup manager, and CLI simulator.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
