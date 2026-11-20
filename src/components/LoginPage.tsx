@@ -11,6 +11,7 @@ import {
   Mail,
   User,
 } from 'lucide-react';
+import { ThemeToggle } from './ThemeToggle';
 import {
   AuthUser,
   DEMO_USER,
@@ -104,7 +105,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
   return (
     <div className="grid min-h-screen bg-slate-50 lg:grid-cols-[1.05fr_1fr]">
       {/* Brand panel */}
-      <aside className="relative hidden overflow-hidden bg-linear-to-br from-emerald-900 via-emerald-800 to-emerald-600 p-12 text-white lg:flex lg:flex-col lg:justify-between">
+      <aside className="scale-light relative hidden overflow-hidden bg-linear-to-br from-emerald-900 via-emerald-800 to-emerald-600 p-12 text-white lg:flex lg:flex-col lg:justify-between">
         <div
           className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-emerald-400/30 blur-3xl"
           aria-hidden="true"
@@ -173,7 +174,10 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
       </aside>
 
       {/* Form panel */}
-      <main className="flex items-center justify-center px-4 py-10 sm:px-8">
+      <main className="relative flex items-center justify-center px-4 py-10 sm:px-8">
+        <div className="absolute right-4 top-4 sm:right-8 sm:top-6">
+          <ThemeToggle />
+        </div>
         <div className="w-full max-w-md">
           <div className="mb-8 flex items-center gap-2.5 lg:hidden">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-600 text-white">

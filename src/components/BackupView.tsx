@@ -191,7 +191,7 @@ export const BackupView: React.FC<BackupViewProps> = ({
 
         {/* Right: Execution output & stored blobs */}
         <div className="space-y-4 lg:col-span-7">
-          <div className="overflow-hidden rounded-xl border border-slate-200 bg-slate-900">
+          <div className="overflow-hidden rounded-xl border border-slate-200 bg-slate-900 scale-light">
             <div className="border-b border-slate-800 px-4 py-2.5 text-xs font-medium text-slate-300">
               Script Output
             </div>

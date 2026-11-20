@@ -58,7 +58,7 @@ export const SourceFilesView: React.FC = () => {
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-slate-200 bg-slate-950 lg:col-span-8">
+      <div className="overflow-hidden rounded-xl border border-slate-200 bg-slate-950 scale-light lg:col-span-8">
         <div className="flex items-center justify-between border-b border-slate-800 px-4 py-3">
           <div>
             <span className="font-mono text-xs font-medium text-white">{activeFile.filename}</span>

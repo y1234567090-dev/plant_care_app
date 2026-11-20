@@ -92,7 +92,7 @@ export const CollectionView: React.FC<CollectionViewProps> = ({
         ? 'text-emerald-700'
         : plant.health === 'Need Attention'
         ? 'text-amber-700'
-        : 'text-red-700';
+        : 'text-red-700 dark:text-red-300';
 
     return (
       <div className="flex items-center gap-1.5">

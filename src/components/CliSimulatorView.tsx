@@ -437,7 +437,7 @@ export const CliSimulatorView: React.FC<CliSimulatorViewProps> = ({
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-slate-200 bg-slate-950 text-slate-100">
+      <div className="overflow-hidden rounded-xl border border-slate-200 bg-slate-950 text-slate-100 scale-light">
         <div className="flex items-center justify-between border-b border-slate-800 px-4 py-2.5">
           <div className="flex items-center gap-2 text-xs font-medium text-slate-300">
             <Terminal className="h-3.5 w-3.5 text-emerald-400" />
