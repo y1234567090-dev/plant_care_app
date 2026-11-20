@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { AlertCircle, CalendarClock, CheckCircle2, Clock, Droplets } from 'lucide-react';
 import { PlantRecord, WateringStatus } from '../types/plant';
 import { evaluatePlantSchedule, getLocalIsoDate } from '../utils/schedule';
+import { PlantThumbnail } from './PlantThumbnail';
 
 interface ScheduleViewProps {
   plants: PlantRecord[];
@@ -57,13 +58,15 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
   const dueCount = counts.overdue + counts.due_today;
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="space-y-5">
+      <div className="flex flex-col gap-3 rounded-xl border border-[var(--border-default)] bg-[var(--bg-elevated)] px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-base font-semibold text-slate-900">Watering Reminders</h2>
-          <p className="mt-0.5 text-sm text-slate-500">
+          <h2 className="font-display text-lg font-semibold text-[var(--text-primary)]">
+            Watering reminders
+          </h2>
+          <p className="mt-0.5 text-sm text-[var(--text-secondary)]">
             Schedule calculated from <span className="font-mono text-xs">last_watered + watering_days</span> for{' '}
-            <span className="font-mono text-xs tabular-nums text-slate-700">{todayIso}</span>.
+            <span className="font-mono text-xs tabular-nums text-[var(--text-primary)]">{todayIso}</span>.
           </p>
         </div>
 
@@ -71,10 +74,10 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
           <button
             type="button"
             onClick={onWaterAllDue}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700 whitespace-nowrap shrink-0"
+            className="inline-flex items-center gap-1.5 rounded-full bg-[var(--accent-primary)] px-4 py-2 text-xs font-medium text-white transition-colors hover:bg-[var(--accent-hover)] whitespace-nowrap shrink-0"
           >
-            <Droplets className="h-4 w-4" />
-            Water All Due ({dueCount})
+            <Droplets className="h-3.5 w-3.5" />
+            Water all due ({dueCount})
           </button>
         )}
       </div>
@@ -82,7 +85,7 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
       {/* Filter segmented bar */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div
-          className="flex flex-wrap items-center gap-1 rounded-lg border border-slate-200 bg-slate-100 p-1"
+          className="flex flex-wrap items-center gap-1 rounded-lg border border-[var(--border-default)] bg-[var(--bg-muted)] p-1"
           role="tablist"
           aria-label="Filter watering schedule"
         >
@@ -103,8 +106,8 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
               onClick={() => setFilter(tab.key)}
               className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors whitespace-nowrap shrink-0 ${
                 filter === tab.key
-                  ? 'bg-white text-slate-900 shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
+                  ? 'bg-[var(--bg-elevated)] text-[var(--text-primary)] shadow-xs'
+                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               }`}
             >
               {tab.label}
@@ -114,11 +117,13 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
       </div>
 
       {/* Schedule list */}
-      <div className="divide-y divide-slate-200 overflow-hidden rounded-xl border border-slate-200 bg-white">
+      <div className="divide-y divide-[var(--border-default)] overflow-hidden rounded-xl border border-[var(--border-default)] bg-[var(--bg-elevated)]">
         {filtered.length === 0 ? (
           <div className="px-6 py-14 text-center">
-            <p className="text-sm font-medium text-slate-900">No plants in this schedule view</p>
-            <p className="mt-1 text-xs text-slate-500">
+            <p className="text-sm font-medium text-[var(--text-primary)]">
+              No plants in this schedule view
+            </p>
+            <p className="mt-1 text-xs text-[var(--text-secondary)]">
               Select another filter or add plants to track their watering cadence.
             </p>
           </div>
@@ -128,22 +133,22 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
 
             const statusBlock =
               status === 'overdue' ? (
-                <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-red-600">
+                <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--status-danger)]">
                   <AlertCircle className="h-4 w-4 shrink-0" />
-                  <span>OVERDUE ({Math.abs(daysLeft ?? 0)} days)</span>
+                  <span>Overdue ({Math.abs(daysLeft ?? 0)} days)</span>
                 </div>
               ) : status === 'due_today' ? (
-                <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-700">
+                <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--status-warning)]">
                   <CalendarClock className="h-4 w-4 shrink-0" />
-                  <span>WATER TODAY</span>
+                  <span>Water today</span>
                 </div>
               ) : status === 'upcoming' ? (
-                <div className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-700">
+                <div className="inline-flex items-center gap-1.5 text-xs font-medium text-[var(--status-healthy)]">
                   <CheckCircle2 className="h-4 w-4 shrink-0" />
                   <span>{daysLeft} days remaining</span>
                 </div>
               ) : (
-                <div className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500">
+                <div className="inline-flex items-center gap-1.5 text-xs font-medium text-[var(--text-muted)]">
                   <Clock className="h-4 w-4 shrink-0" />
                   <span>Watering information missing</span>
                 </div>
@@ -152,39 +157,51 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
             return (
               <div
                 key={plant.id}
-                className="flex flex-col gap-4 px-5 py-4 transition-colors hover:bg-slate-50/70 sm:flex-row sm:items-center sm:justify-between"
+                className="flex flex-col gap-4 px-5 py-4 transition-colors hover:bg-[var(--bg-subtle)] sm:flex-row sm:items-center sm:justify-between"
               >
-                <div className="min-w-0 space-y-1">
-                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                    <span className="font-mono text-xs tabular-nums text-slate-400">
-                      #{String(plant.id).padStart(2, '0')}
-                    </span>
-                    <span className="text-sm font-semibold text-slate-900">{plant.name}</span>
-                    <span className="text-slate-300" aria-hidden="true">
-                      ·
-                    </span>
-                    <span className="text-xs text-slate-500">{plant.plant_type}</span>
-                    <span className="text-slate-300" aria-hidden="true">
-                      ·
-                    </span>
-                    <span className="font-mono text-xs tabular-nums text-slate-500">
-                      Every {plant.watering_days}d
-                    </span>
-                  </div>
+                <div className="flex min-w-0 items-center gap-3">
+                  <PlantThumbnail
+                    name={plant.name}
+                    imageUrl={plant.image_url}
+                    icon={plant.icon}
+                    size="sm"
+                  />
+                  <div className="min-w-0 space-y-1">
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                      <span className="font-mono text-xs tabular-nums text-[var(--text-faint)]">
+                        #{String(plant.id).padStart(2, '0')}
+                      </span>
+                      <span className="text-sm font-semibold text-[var(--text-primary)]">
+                        {plant.name}
+                      </span>
+                      <span className="text-[var(--text-faint)]" aria-hidden="true">
+                        ·
+                      </span>
+                      <span className="text-xs text-[var(--text-secondary)]">
+                        {plant.plant_type}
+                      </span>
+                      <span className="text-[var(--text-faint)]" aria-hidden="true">
+                        ·
+                      </span>
+                      <span className="font-mono text-xs tabular-nums text-[var(--text-secondary)]">
+                        Every {plant.watering_days}d
+                      </span>
+                    </div>
 
-                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
-                    <span>
-                      Last Watered:{' '}
-                      <span className="font-mono tabular-nums text-slate-700">
-                        {plant.last_watered ?? 'Never'}
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-[var(--text-secondary)]">
+                      <span>
+                        Last watered:{' '}
+                        <span className="font-mono tabular-nums text-[var(--text-primary)]">
+                          {plant.last_watered ?? 'Never'}
+                        </span>
                       </span>
-                    </span>
-                    <span>
-                      Next Watering:{' '}
-                      <span className="font-mono tabular-nums text-slate-700">
-                        {nextDate ?? 'Pending first watering'}
+                      <span>
+                        Next watering:{' '}
+                        <span className="font-mono tabular-nums text-[var(--text-primary)]">
+                          {nextDate ?? 'Pending first watering'}
+                        </span>
                       </span>
-                    </span>
+                    </div>
                   </div>
                 </div>
 
@@ -195,12 +212,12 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
                     onClick={() => onWaterPlant(plant.id)}
                     className={`inline-flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-xs font-medium transition-colors whitespace-nowrap shrink-0 ${
                       status === 'overdue' || status === 'due_today'
-                        ? 'bg-emerald-600 text-white hover:bg-emerald-700'
-                        : 'border border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                        ? 'bg-[var(--accent-primary)] text-white hover:bg-[var(--accent-hover)]'
+                        : 'border border-[var(--border-strong)] bg-[var(--bg-surface)] text-[var(--text-primary)] hover:bg-[var(--bg-muted)]'
                     }`}
                   >
                     <Droplets className="h-3.5 w-3.5" />
-                    Water Now
+                    Water now
                   </button>
                 </div>
               </div>

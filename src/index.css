@@ -1,19 +1,65 @@
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --font-display: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Fraunces", Georgia, Cambria, serif;
   --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+:root {
+  --bg-canvas: #F6F1E7;
+  --bg-surface: #FCF9F3;
+  --bg-elevated: #FFFFFF;
+  --bg-muted: #EFE8DA;
+  --bg-subtle: #FAF6EE;
+  --border-default: #E4DDD0;
+  --border-strong: #DDD4C4;
+  --text-primary: #1C2A22;
+  --text-secondary: #5D655E;
+  --text-muted: #6B726B;
+  --text-faint: #7E857D;
+  --accent-primary: #22543B;
+  --accent-hover: #19412D;
+  --accent-terracotta: #A65D37;
+  --status-healthy: #22543B;
+  --status-warning: #B45309;
+  --status-danger: #B91C1C;
+  --chart-grid: #EFE8DA;
+}
+
+.dark {
+  color-scheme: dark;
+  --bg-canvas: #111915;
+  --bg-surface: #17221C;
+  --bg-elevated: #1C2922;
+  --bg-muted: #23332A;
+  --bg-subtle: #1F2E26;
+  --border-default: #2B3D33;
+  --border-strong: #364C40;
+  --text-primary: #EDF2EE;
+  --text-secondary: #B4C2B9;
+  --text-muted: #93A599;
+  --text-faint: #7B8E82;
+  --accent-primary: #2E6F4E;
+  --accent-hover: #38855E;
+  --accent-terracotta: #DF9167;
+  --status-healthy: #4ADE80;
+  --status-warning: #FBBF24;
+  --status-danger: #F87171;
+  --chart-grid: #283A30;
 }
 
 @layer base {
   html {
     font-family: var(--font-sans);
+    background-color: var(--bg-canvas);
+    color: var(--text-primary);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
-  h1, h2, h3, h4 {
+  h1, h2 {
     font-family: var(--font-display);
   }
 }

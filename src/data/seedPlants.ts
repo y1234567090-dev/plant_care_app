@@ -1,4 +1,4 @@
-import { PlantRecord } from '../types/plant';
+import { PlantRecord, WateringEventRecord } from '../types/plant';
 import { offsetIsoDate } from '../utils/schedule';
 
 export function createSeedPlants(): PlantRecord[] {
@@ -11,6 +11,8 @@ export function createSeedPlants(): PlantRecord[] {
       sunlight: 'Bright Indirect',
       health: 'Healthy',
       last_watered: offsetIsoDate(-9), // 2 days overdue
+      icon: 'leaf',
+      image_url: null,
     },
     {
       id: 2,
@@ -20,6 +22,8 @@ export function createSeedPlants(): PlantRecord[] {
       sunlight: 'Bright Filtered',
       health: 'Need Attention',
       last_watered: offsetIsoDate(-10), // Due today
+      icon: 'tree',
+      image_url: null,
     },
     {
       id: 3,
@@ -29,6 +33,8 @@ export function createSeedPlants(): PlantRecord[] {
       sunlight: 'Low to Bright Indirect',
       health: 'Healthy',
       last_watered: offsetIsoDate(-4), // 10 days remaining
+      icon: 'succulent',
+      image_url: null,
     },
     {
       id: 4,
@@ -38,6 +44,8 @@ export function createSeedPlants(): PlantRecord[] {
       sunlight: 'Medium Indirect',
       health: 'Unhealthy',
       last_watered: offsetIsoDate(-5), // 2 days overdue
+      icon: 'fern',
+      image_url: null,
     },
     {
       id: 5,
@@ -47,6 +55,8 @@ export function createSeedPlants(): PlantRecord[] {
       sunlight: 'Partial Shade',
       health: 'Healthy',
       last_watered: offsetIsoDate(-2), // 3 days remaining
+      icon: 'flower',
+      image_url: null,
     },
     {
       id: 6,
@@ -55,7 +65,31 @@ export function createSeedPlants(): PlantRecord[] {
       watering_days: 12,
       sunlight: 'Bright Direct Morning',
       health: 'Need Attention',
-      last_watered: null, // Never watered yet (like add_plant() before first watering)
+      last_watered: null, // Never watered yet
+      icon: 'sprout',
+      image_url: null,
     },
   ];
+}
+
+export function createSeedWateringEvents(): WateringEventRecord[] {
+  const scheduleOffsets: { plantId: number; offsets: number[] }[] = [
+    { plantId: 1, offsets: [-9, -16, -23] },
+    { plantId: 2, offsets: [-10, -20] },
+    { plantId: 3, offsets: [-4, -18] },
+    { plantId: 4, offsets: [-5, -8, -11, -14, -17, -20, -23, -26, -29] },
+    { plantId: 5, offsets: [-2, -7, -12, -17, -22, -27] },
+  ];
+
+  const events: WateringEventRecord[] = [];
+  for (const entry of scheduleOffsets) {
+    for (const offset of entry.offsets) {
+      events.push({
+        id: `seed-${entry.plantId}-${offset}`,
+        plantId: entry.plantId,
+        date: offsetIsoDate(offset),
+      });
+    }
+  }
+  return events;
 }

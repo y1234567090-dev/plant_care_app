@@ -1,5 +1,7 @@
 export type PlantHealth = 'Healthy' | 'Need Attention' | 'Unhealthy';
 
+export type PlantIconId = 'sprout' | 'leaf' | 'flower' | 'tree' | 'fern' | 'succulent';
+
 export interface PlantRecord {
   id: number;
   name: string;
@@ -8,6 +10,8 @@ export interface PlantRecord {
   sunlight: string;
   health: PlantHealth;
   last_watered: string | null;
+  image_url?: string | null;
+  icon?: PlantIconId;
 }
 
 export type WateringStatus = 'overdue' | 'due_today' | 'upcoming' | 'missing';
@@ -30,6 +34,12 @@ export interface BackupBlobRecord {
   plantCount: number;
   sizeBytes: number;
   snapshot: PlantRecord[];
+}
+
+export interface WateringEventRecord {
+  id: string;
+  plantId: number;
+  date: string;
 }
 
 export type ActiveSection = 'collection' | 'schedule' | 'backups' | 'cli' | 'sources';

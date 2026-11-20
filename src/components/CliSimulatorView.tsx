@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { RotateCcw, Terminal } from 'lucide-react';
-import { PlantHealth, PlantRecord } from '../types/plant';
+import { PlantHealth, PlantIconId, PlantRecord } from '../types/plant';
 import { evaluatePlantSchedule, getLocalIsoDate } from '../utils/schedule';
 
 interface CliSimulatorViewProps {
@@ -12,6 +12,8 @@ interface CliSimulatorViewProps {
     sunlight: string;
     health: PlantHealth;
     last_watered: string | null;
+    image_url?: string | null;
+    icon?: PlantIconId;
   }) => number;
   onWaterPlant: (id: number) => boolean;
   onDeletePlant: (id: number) => string | null;
@@ -400,10 +402,12 @@ export const CliSimulatorView: React.FC<CliSimulatorViewProps> = ({
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 rounded-xl border border-[var(--border-default)] bg-[var(--bg-elevated)] px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-base font-semibold text-slate-900">Interactive CLI Preview</h2>
-          <p className="mt-0.5 text-xs text-slate-500">
+          <h2 className="font-display text-lg font-semibold text-[var(--text-primary)]">
+            Interactive CLI preview
+          </h2>
+          <p className="mt-0.5 text-xs text-[var(--text-secondary)]">
             Executes <span className="font-mono">main.py</span> menu options 1–8 directly against the live plant database.
           </p>
         </div>
@@ -413,14 +417,14 @@ export const CliSimulatorView: React.FC<CliSimulatorViewProps> = ({
               <button
                 type="button"
                 onClick={() => processInput('2')}
-                className="rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1.5 font-mono text-xs text-slate-700 transition-colors hover:bg-slate-100 whitespace-nowrap shrink-0"
+                className="rounded-md border border-[var(--border-strong)] bg-[var(--bg-subtle)] px-2.5 py-1.5 font-mono text-xs text-[var(--text-primary)] transition-colors hover:bg-[var(--bg-muted)] whitespace-nowrap shrink-0"
               >
                 2. View Plants
               </button>
               <button
                 type="button"
                 onClick={() => processInput('4')}
-                className="rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1.5 font-mono text-xs text-slate-700 transition-colors hover:bg-slate-100 whitespace-nowrap shrink-0"
+                className="rounded-md border border-[var(--border-strong)] bg-[var(--bg-subtle)] px-2.5 py-1.5 font-mono text-xs text-[var(--text-primary)] transition-colors hover:bg-[var(--bg-muted)] whitespace-nowrap shrink-0"
               >
                 4. Check Schedule
               </button>
@@ -429,7 +433,7 @@ export const CliSimulatorView: React.FC<CliSimulatorViewProps> = ({
           <button
             type="button"
             onClick={handleRestart}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 transition-colors hover:bg-slate-50 whitespace-nowrap shrink-0"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border-strong)] bg-[var(--bg-surface)] px-3 py-1.5 text-xs font-medium text-[var(--text-primary)] transition-colors hover:bg-[var(--bg-muted)] whitespace-nowrap shrink-0"
           >
             <RotateCcw className="h-3.5 w-3.5" />
             Restart CLI
@@ -437,29 +441,29 @@ export const CliSimulatorView: React.FC<CliSimulatorViewProps> = ({
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-slate-200 bg-slate-950 text-slate-100">
-        <div className="flex items-center justify-between border-b border-slate-800 px-4 py-2.5">
-          <div className="flex items-center gap-2 text-xs font-medium text-slate-300">
-            <Terminal className="h-3.5 w-3.5 text-emerald-400" />
+      <div className="overflow-hidden rounded-xl border border-[#2C3B32] bg-[#17231C] text-[#E6ECE7]">
+        <div className="flex items-center justify-between border-b border-[#26362C] px-4 py-2.5">
+          <div className="flex items-center gap-2 text-xs font-medium text-[#C5D1C8]">
+            <Terminal className="h-3.5 w-3.5 text-[#7DD397]" />
             <span className="font-mono">python main.py</span>
           </div>
-          <span className="font-mono text-xs tabular-nums text-slate-400">
+          <span className="font-mono text-xs tabular-nums text-[#8FA195]">
             {plants.length} rows in plants.db
           </span>
         </div>
 
         <div
           ref={outputRef}
-          className="h-[420px] overflow-y-auto p-4 font-mono text-xs leading-relaxed text-slate-200"
+          className="h-[400px] overflow-y-auto p-4 font-mono text-xs leading-relaxed text-[#DDE6DF]"
         >
           {history.map((line, index) => (
             <div key={index} className="whitespace-pre-wrap break-words">
               {line.includes('OVERDUE!') ? (
-                <span className="text-red-400">{line}</span>
+                <span className="text-red-300">{line}</span>
               ) : line.includes('WATER TODAY!') ? (
-                <span className="text-amber-300">{line}</span>
+                <span className="text-amber-200">{line}</span>
               ) : line.includes('successfully') || line.startsWith('$ ') ? (
-                <span className="text-emerald-400">{line}</span>
+                <span className="text-[#7DD397]">{line}</span>
               ) : (
                 line || '\u00A0'
               )}
@@ -467,8 +471,8 @@ export const CliSimulatorView: React.FC<CliSimulatorViewProps> = ({
           ))}
         </div>
 
-        <form onSubmit={handleSubmit} className="flex items-center gap-3 border-t border-slate-800 bg-slate-900 px-4 py-3">
-          <span className="font-mono text-xs font-medium text-emerald-400 whitespace-nowrap shrink-0">
+        <form onSubmit={handleSubmit} className="flex items-center gap-3 border-t border-[#26362C] bg-[#1D2B22] px-4 py-3">
+          <span className="font-mono text-xs font-medium text-[#7DD397] whitespace-nowrap shrink-0">
             {getPromptLabel(step)}
           </span>
           <input
@@ -478,12 +482,12 @@ export const CliSimulatorView: React.FC<CliSimulatorViewProps> = ({
             onChange={(e) => setInputValue(e.target.value)}
             placeholder={step.mode === 'exited' ? 'Restart CLI to continue' : 'Type choice or value and press Enter'}
             aria-label="CLI command input"
-            className="min-w-0 flex-1 bg-transparent font-mono text-xs text-white placeholder:text-slate-500 focus:outline-none"
+            className="min-w-0 flex-1 bg-transparent font-mono text-xs text-white placeholder:text-[#74857A] focus:outline-none"
           />
           <button
             type="submit"
             disabled={step.mode === 'exited'}
-            className="rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-emerald-700 disabled:opacity-40 whitespace-nowrap shrink-0"
+            className="rounded-md bg-[#22543B] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-[#19412D] disabled:opacity-40 whitespace-nowrap shrink-0"
           >
             Send
           </button>
