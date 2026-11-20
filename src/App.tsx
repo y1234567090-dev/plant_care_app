@@ -4,17 +4,22 @@ import {
   CloudUpload,
   Droplets,
   FileCode2,
+  LayoutDashboard,
   Leaf,
+  LogOut,
   Menu,
   Plus,
   Sprout,
   Terminal,
   X,
 } from 'lucide-react';
+import { AuthUser, clearSession, loadSession, saveSession } from './auth';
 import { AddPlantModal } from './components/AddPlantModal';
 import { BackupView } from './components/BackupView';
 import { CliSimulatorView } from './components/CliSimulatorView';
 import { CollectionView } from './components/CollectionView';
+import { LoginPage } from './components/LoginPage';
+import { OverviewView } from './components/OverviewView';
 import { ScheduleView } from './components/ScheduleView';
 import { SourceFilesView } from './components/SourceFilesView';
 import { createSeedPlants } from './data/seedPlants';
@@ -32,6 +37,7 @@ const NEXT_ID_STORAGE_KEY = 'plant_care_tracker_next_id_v1';
 const BACKUPS_STORAGE_KEY = 'plant_care_tracker_backups_v1';
 
 const NAV_ITEMS: { id: ActiveSection; label: string; icon: typeof Sprout }[] = [
+  { id: 'overview', label: 'Today', icon: LayoutDashboard },
   { id: 'collection', label: 'Plant Collection', icon: Sprout },
   { id: 'schedule', label: 'Watering Schedule', icon: CalendarClock },
   { id: 'backups', label: 'Azure Backups', icon: CloudUpload },
@@ -40,6 +46,7 @@ const NAV_ITEMS: { id: ActiveSection; label: string; icon: typeof Sprout }[] = [
 ];
 
 const SECTION_TITLES: Record<ActiveSection, string> = {
+  overview: 'Today',
   collection: 'Plant Collection',
   schedule: 'Watering Schedule',
   backups: 'Azure Backups',
@@ -87,12 +94,41 @@ function loadInitialBackups(): BackupBlobRecord[] {
   return [];
 }
 
+function initialsOf(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return '?';
+  return parts
+    .slice(0, 2)
+    .map((p) => p[0].toUpperCase())
+    .join('');
+}
+
 export default function App() {
+  const [user, setUser] = useState<AuthUser | null>(() => loadSession());
+
+  const handleLogin = (next: AuthUser) => {
+    saveSession(next);
+    setUser(next);
+  };
+
+  const handleSignOut = () => {
+    clearSession();
+    setUser(null);
+  };
+
+  if (!user) {
+    return <LoginPage onLogin={handleLogin} />;
+  }
+
+  return <Workspace user={user} onSignOut={handleSignOut} />;
+}
+
+function Workspace({ user, onSignOut }: { user: AuthUser; onSignOut: () => void }) {
   const [plants, setPlants] = useState<PlantRecord[]>(() => loadInitialPlants());
   const [nextId, setNextId] = useState<number>(() => loadInitialNextId(plants));
   const [backups, setBackups] = useState<BackupBlobRecord[]>(() => loadInitialBackups());
 
-  const [activeSection, setActiveSection] = useState<ActiveSection>('collection');
+  const [activeSection, setActiveSection] = useState<ActiveSection>('overview');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
 
@@ -277,11 +313,34 @@ export default function App() {
         </nav>
       </div>
 
-      <div className="border-t border-slate-200 px-2 pt-4 text-xs text-slate-500">
-        <p className="font-medium text-slate-700">SQLite Schema Preview</p>
-        <p className="mt-1 font-mono text-[11px] text-slate-500">
-          plants.db · {plants.length} records
-        </p>
+      <div className="space-y-4 border-t border-slate-200 px-2 pt-4 text-xs text-slate-500">
+        <div>
+          <p className="font-medium text-slate-700">SQLite Schema Preview</p>
+          <p className="mt-1 font-mono text-[11px] text-slate-500">
+            plants.db · {plants.length} records
+          </p>
+        </div>
+        <div className="flex items-center gap-2.5">
+          <span
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-800"
+            aria-hidden="true"
+          >
+            {initialsOf(user.name)}
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-medium text-slate-900">{user.name}</p>
+            <p className="truncate text-[11px] text-slate-500">{user.email}</p>
+          </div>
+          <button
+            type="button"
+            onClick={onSignOut}
+            aria-label="Sign out"
+            title="Sign out"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-rose-50 hover:text-rose-600"
+          >
+            <LogOut className="h-4 w-4" />
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -366,6 +425,17 @@ export default function App() {
 
         {/* Main Viewport */}
         <main className="mx-auto w-full max-w-[1200px] flex-1 p-4 sm:p-6 lg:p-8">
+          {activeSection === 'overview' && (
+            <OverviewView
+              userName={user.name}
+              plants={plants}
+              onWaterPlant={handleWaterPlant}
+              onWaterAllDue={handleWaterAllDue}
+              onOpenAddModal={() => setIsAddModalOpen(true)}
+              onNavigate={setActiveSection}
+            />
+          )}
+
           {activeSection === 'collection' && (
             <CollectionView
               plants={plants}

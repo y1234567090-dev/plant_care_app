@@ -4,6 +4,37 @@
   --font-display: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /*
+   * Colour code used across the app:
+   *   green  (emerald) = brand, healthy, success
+   *   amber            = needs attention, warm accent
+   *   red    (rose)    = unhealthy, overdue, errors
+   *   blue   (sky)     = water due today
+   *   violet           = upcoming
+   * Neutrals carry a faint green tint so they sit naturally beside the brand colour.
+   */
+  --color-emerald-50: #effcf5;
+  --color-emerald-100: #d6f7e5;
+  --color-emerald-200: #aeeccb;
+  --color-emerald-300: #78dbaa;
+  --color-emerald-400: #3fc283;
+  --color-emerald-500: #1fa66a;
+  --color-emerald-600: #158a58;
+  --color-emerald-700: #126e47;
+  --color-emerald-800: #115739;
+  --color-emerald-900: #0d4630;
+
+  --color-slate-50: #f6faf7;
+  --color-slate-100: #edf3ef;
+  --color-slate-200: #dde7e1;
+  --color-slate-300: #c3d2c9;
+  --color-slate-400: #8ea398;
+  --color-slate-500: #65796f;
+  --color-slate-600: #4c5f56;
+  --color-slate-700: #37473f;
+  --color-slate-800: #232f29;
+  --color-slate-900: #121c17;
 }
 
 @layer base {
