@@ -116,7 +116,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
   return (
     <div className="space-y-6">
       {/* Welcome banner */}
-      <section className="relative overflow-hidden rounded-2xl bg-linear-to-br from-emerald-700 via-emerald-600 to-emerald-500 p-6 text-white sm:p-8">
+      <section className="scale-light relative overflow-hidden rounded-2xl bg-linear-to-br from-emerald-700 via-emerald-600 to-emerald-500 p-6 text-white sm:p-8">
         <div
           className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-amber-300/30 blur-3xl"
           aria-hidden="true"

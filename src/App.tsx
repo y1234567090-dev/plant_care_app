@@ -1,27 +1,16 @@
 import { useEffect, useMemo, useState } from 'react';
-import {
-  CalendarClock,
-  CloudUpload,
-  Droplets,
-  FileCode2,
-  LayoutDashboard,
-  Leaf,
-  LogOut,
-  Menu,
-  Plus,
-  Sprout,
-  Terminal,
-  X,
-} from 'lucide-react';
+import { LogOut, Plus } from 'lucide-react';
 import { AuthUser, clearSession, loadSession, saveSession } from './auth';
 import { AddPlantModal } from './components/AddPlantModal';
 import { BackupView } from './components/BackupView';
 import { CliSimulatorView } from './components/CliSimulatorView';
 import { CollectionView } from './components/CollectionView';
+import { FrontPage } from './components/FrontPage';
 import { LoginPage } from './components/LoginPage';
 import { OverviewView } from './components/OverviewView';
 import { ScheduleView } from './components/ScheduleView';
 import { SourceFilesView } from './components/SourceFilesView';
+import { ThemeToggle } from './components/ThemeToggle';
 import { createSeedPlants } from './data/seedPlants';
 import {
   ActiveSection,
@@ -36,23 +25,21 @@ const PLANTS_STORAGE_KEY = 'plant_care_tracker_plants_v1';
 const NEXT_ID_STORAGE_KEY = 'plant_care_tracker_next_id_v1';
 const BACKUPS_STORAGE_KEY = 'plant_care_tracker_backups_v1';
 
-const NAV_ITEMS: { id: ActiveSection; label: string; icon: typeof Sprout }[] = [
-  { id: 'overview', label: 'Today', icon: LayoutDashboard },
-  { id: 'collection', label: 'Plant Collection', icon: Sprout },
-  { id: 'schedule', label: 'Watering Schedule', icon: CalendarClock },
-  { id: 'backups', label: 'Azure Backups', icon: CloudUpload },
-  { id: 'cli', label: 'CLI Simulator', icon: Terminal },
-  { id: 'sources', label: 'Project Files', icon: FileCode2 },
+type Page = 'front' | 'second';
+
+const PAGE_TABS: { id: Page; label: string }[] = [
+  { id: 'front', label: 'Front Page' },
+  { id: 'second', label: 'Second Page' },
 ];
 
-const SECTION_TITLES: Record<ActiveSection, string> = {
-  overview: 'Today',
-  collection: 'Plant Collection',
-  schedule: 'Watering Schedule',
-  backups: 'Azure Backups',
-  cli: 'CLI Simulator',
-  sources: 'Project Files',
-};
+const SECTIONS: { id: ActiveSection; label: string }[] = [
+  { id: 'overview', label: 'Today' },
+  { id: 'collection', label: 'Plant Collection' },
+  { id: 'schedule', label: 'Watering Schedule' },
+  { id: 'backups', label: 'Azure Backups' },
+  { id: 'cli', label: 'CLI Simulator' },
+  { id: 'sources', label: 'Project Files' },
+];
 
 function loadInitialPlants(): PlantRecord[] {
   try {
@@ -123,14 +110,67 @@ export default function App() {
   return <Workspace user={user} onSignOut={handleSignOut} />;
 }
 
+function UserMenu({ user, onSignOut }: { user: AuthUser; onSignOut: () => void }) {
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setOpen(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open]);
+
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-label="Account menu"
+        aria-expanded={open}
+        className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-emerald-100 text-xs font-bold text-emerald-800 transition-colors hover:border-emerald-500 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-emerald-500/25"
+      >
+        {initialsOf(user.name)}
+      </button>
+
+      {open && (
+        <>
+          <button
+            type="button"
+            aria-label="Close menu"
+            className="fixed inset-0 z-40 cursor-default"
+            onClick={() => setOpen(false)}
+          />
+          <div className="absolute right-0 z-50 mt-2 w-64 rounded-2xl border border-slate-200 bg-white p-2 shadow-xl shadow-black/20">
+            <div className="px-3 py-2.5">
+              <p className="truncate text-sm font-semibold text-slate-900">{user.name}</p>
+              <p className="truncate text-xs text-slate-500">{user.email}</p>
+            </div>
+            <div className="my-1 h-px bg-slate-200" />
+            <button
+              type="button"
+              onClick={onSignOut}
+              className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-rose-50 hover:text-rose-600"
+            >
+              <LogOut className="h-4 w-4" />
+              Sign out
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 function Workspace({ user, onSignOut }: { user: AuthUser; onSignOut: () => void }) {
   const [plants, setPlants] = useState<PlantRecord[]>(() => loadInitialPlants());
   const [nextId, setNextId] = useState<number>(() => loadInitialNextId(plants));
   const [backups, setBackups] = useState<BackupBlobRecord[]>(() => loadInitialBackups());
 
+  const [page, setPage] = useState<Page>('front');
   const [activeSection, setActiveSection] = useState<ActiveSection>('overview');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
 
   useEffect(() => {
     try {
@@ -156,6 +196,12 @@ function Workspace({ user, onSignOut }: { user: AuthUser; onSignOut: () => void 
       return sched.status === 'overdue' || sched.status === 'due_today';
     }).length;
   }, [plants]);
+
+  const openSecondPage = (section?: ActiveSection) => {
+    if (section) setActiveSection(section);
+    setPage('second');
+    window.scrollTo({ top: 0 });
+  };
 
   const handleAddPlant = (payload: {
     name: string;
@@ -264,220 +310,174 @@ function Workspace({ user, onSignOut }: { user: AuthUser; onSignOut: () => void 
     setBackups((prev) => prev.filter((b) => b.id !== id));
   };
 
-  const renderSidebarContent = () => (
-    <div className="flex h-full flex-col justify-between bg-white px-4 py-5">
-      <div className="space-y-6">
-        <div className="flex items-center gap-2.5 px-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-600 text-white shrink-0">
-            <Leaf className="h-4 w-4" />
-          </div>
-          <span className="font-display text-sm font-bold tracking-tight text-slate-900 whitespace-nowrap">
-            Plant Care Tracker
-          </span>
-        </div>
-
-        <nav className="space-y-1" aria-label="Workspace sections">
-          {NAV_ITEMS.map((item) => {
-            const Icon = item.icon;
-            const isActive = activeSection === item.id;
-            return (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => {
-                  setActiveSection(item.id);
-                  setIsMobileNavOpen(false);
-                }}
-                className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm font-medium transition-colors whitespace-nowrap ${
-                  isActive
-                    ? 'bg-emerald-50 text-emerald-800'
-                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-                }`}
-              >
-                <span className="flex items-center gap-2.5">
-                  <Icon
-                    className={`h-4 w-4 shrink-0 ${
-                      isActive ? 'text-emerald-600' : 'text-slate-400'
-                    }`}
-                  />
-                  <span>{item.label}</span>
-                </span>
-                {item.id === 'schedule' && dueCount > 0 && (
-                  <span className="font-mono text-xs tabular-nums text-amber-700">
-                    {dueCount}
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </nav>
-      </div>
-
-      <div className="space-y-4 border-t border-slate-200 px-2 pt-4 text-xs text-slate-500">
-        <div>
-          <p className="font-medium text-slate-700">SQLite Schema Preview</p>
-          <p className="mt-1 font-mono text-[11px] text-slate-500">
-            plants.db · {plants.length} records
-          </p>
-        </div>
-        <div className="flex items-center gap-2.5">
-          <span
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-800"
-            aria-hidden="true"
-          >
-            {initialsOf(user.name)}
-          </span>
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-medium text-slate-900">{user.name}</p>
-            <p className="truncate text-[11px] text-slate-500">{user.email}</p>
-          </div>
-          <button
-            type="button"
-            onClick={onSignOut}
-            aria-label="Sign out"
-            title="Sign out"
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-rose-50 hover:text-rose-600"
-          >
-            <LogOut className="h-4 w-4" />
-          </button>
-        </div>
-      </div>
-    </div>
-  );
+  const sectionTitle = SECTIONS.find((s) => s.id === activeSection)?.label ?? '';
 
   return (
-    <div className="flex min-h-screen bg-slate-50 text-slate-900">
-      {/* Desktop Sidebar */}
-      <aside className="hidden w-60 shrink-0 border-r border-slate-200 bg-white lg:block">
-        {renderSidebarContent()}
-      </aside>
+    <div className="flex min-h-screen flex-col bg-slate-50 text-slate-900">
+      <header className="sticky top-0 z-30 border-b border-slate-200 bg-slate-50/85 backdrop-blur">
+        <div className="mx-auto flex w-full max-w-[1200px] flex-wrap items-center justify-between gap-x-4 gap-y-1 px-4 pt-3 sm:px-6 sm:py-0 lg:px-8">
+          <button
+            type="button"
+            onClick={() => setPage('front')}
+            className="font-display text-xl font-bold tracking-tight text-slate-900 sm:py-5"
+          >
+            Plant Care Tracker
+          </button>
 
-      {/* Mobile Sidebar Drawer */}
-      {isMobileNavOpen && (
-        <div className="fixed inset-0 z-40 flex lg:hidden">
-          <div
-            className="fixed inset-0 bg-slate-900/40"
-            onClick={() => setIsMobileNavOpen(false)}
-            aria-hidden="true"
-          />
-          <aside className="relative z-50 w-64 border-r border-slate-200 bg-white">
-            <button
-              type="button"
-              onClick={() => setIsMobileNavOpen(false)}
-              aria-label="Close navigation"
-              className="absolute right-3 top-4 flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100"
-            >
-              <X className="h-4 w-4" />
-            </button>
-            {renderSidebarContent()}
-          </aside>
-        </div>
-      )}
+          <nav
+            aria-label="Pages"
+            className="order-3 flex w-full justify-center gap-2 sm:order-none sm:w-auto"
+          >
+            {PAGE_TABS.map((tab) => {
+              const isActive = page === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  aria-current={isActive ? 'page' : undefined}
+                  onClick={() => setPage(tab.id)}
+                  className={`border-b-2 px-3 py-3 text-sm font-medium transition-colors sm:py-[1.55rem] ${
+                    isActive
+                      ? 'border-emerald-500 text-slate-900'
+                      : 'border-transparent text-slate-500 hover:text-slate-800'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              );
+            })}
+          </nav>
 
-      {/* Main Content Shell */}
-      <div className="flex min-w-0 flex-1 flex-col">
-        {/* Top Header */}
-        <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-4 border-b border-slate-200 bg-white px-4 sm:px-6 lg:px-8">
-          <div className="flex min-w-0 items-center gap-3">
-            <button
-              type="button"
-              onClick={() => setIsMobileNavOpen(true)}
-              aria-label="Open navigation"
-              className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 lg:hidden"
-            >
-              <Menu className="h-4 w-4" />
-            </button>
-
-            <nav aria-label="Breadcrumb" className="flex min-w-0 items-center gap-2 text-sm">
-              <span className="hidden text-slate-500 sm:inline whitespace-nowrap">
-                Plant Care Tracker
-              </span>
-              <span className="hidden text-slate-300 sm:inline" aria-hidden="true">
-                /
-              </span>
-              <h1 className="truncate font-display text-base font-semibold text-slate-900">
-                {SECTION_TITLES[activeSection]}
-              </h1>
-            </nav>
-          </div>
-
-          <div className="flex items-center gap-2.5 shrink-0">
-            {dueCount > 0 && (
-              <button
-                type="button"
-                onClick={handleWaterAllDue}
-                className="hidden items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-xs font-medium text-slate-700 transition-colors hover:bg-slate-50 sm:inline-flex whitespace-nowrap shrink-0"
-              >
-                <Droplets className="h-3.5 w-3.5 text-emerald-600" />
-                Water Due ({dueCount})
-              </button>
-            )}
+          <div className="flex items-center gap-2.5 sm:py-3">
+            <ThemeToggle />
             <button
               type="button"
               onClick={() => setIsAddModalOpen(true)}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2 text-xs font-medium text-white transition-colors hover:bg-emerald-700 whitespace-nowrap shrink-0"
+              className="inline-flex items-center gap-1.5 rounded-full bg-emerald-600 px-4 py-2.5 text-xs font-semibold text-white transition-colors hover:bg-emerald-700 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-emerald-500/30 whitespace-nowrap"
             >
               <Plus className="h-3.5 w-3.5" />
-              Add Plant
+              Add plant
             </button>
+            <UserMenu user={user} onSignOut={onSignOut} />
           </div>
-        </header>
+        </div>
+      </header>
 
-        {/* Main Viewport */}
-        <main className="mx-auto w-full max-w-[1200px] flex-1 p-4 sm:p-6 lg:p-8">
-          {activeSection === 'overview' && (
-            <OverviewView
-              userName={user.name}
-              plants={plants}
-              onWaterPlant={handleWaterPlant}
-              onWaterAllDue={handleWaterAllDue}
-              onOpenAddModal={() => setIsAddModalOpen(true)}
-              onNavigate={setActiveSection}
-            />
-          )}
+      <main className="mx-auto w-full max-w-[1200px] flex-1 px-4 pb-16 pt-6 sm:px-6 lg:px-8">
+        {page === 'front' && (
+          <FrontPage
+            userName={user.name}
+            plants={plants}
+            onAddPlant={() => setIsAddModalOpen(true)}
+            onWaterPlant={handleWaterPlant}
+            onOpenSecondPage={openSecondPage}
+          />
+        )}
 
-          {activeSection === 'collection' && (
-            <CollectionView
-              plants={plants}
-              onWaterPlant={handleWaterPlant}
-              onUpdateHealth={handleUpdateHealth}
-              onDeletePlant={handleDeletePlant}
-              onOpenAddModal={() => setIsAddModalOpen(true)}
-              onResetSampleData={handleResetSampleData}
-            />
-          )}
+        {page === 'second' && (
+          <div className="space-y-6">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-orange-600 dark:text-orange-400">
+                Your workspace
+              </p>
+              <h1 className="mt-2 font-display text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+                {sectionTitle}
+              </h1>
+            </div>
 
-          {activeSection === 'schedule' && (
-            <ScheduleView
-              plants={plants}
-              onWaterPlant={handleWaterPlant}
-              onWaterAllDue={handleWaterAllDue}
-            />
-          )}
+            <div
+              className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0"
+              role="tablist"
+              aria-label="Workspace sections"
+            >
+              {SECTIONS.map((section) => {
+                const isActive = activeSection === section.id;
+                return (
+                  <button
+                    key={section.id}
+                    type="button"
+                    role="tab"
+                    aria-selected={isActive}
+                    onClick={() => setActiveSection(section.id)}
+                    className={`inline-flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors ${
+                      isActive
+                        ? 'border-emerald-600 bg-emerald-600 text-white'
+                        : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:text-slate-900'
+                    }`}
+                  >
+                    {section.label}
+                    {section.id === 'schedule' && dueCount > 0 && (
+                      <span
+                        className={`rounded-full px-1.5 py-0.5 font-mono text-[11px] tabular-nums ${
+                          isActive ? 'bg-white/20 text-white' : 'bg-amber-100 text-amber-700'
+                        }`}
+                      >
+                        {dueCount}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
 
-          {activeSection === 'backups' && (
-            <BackupView
-              plants={plants}
-              backups={backups}
-              onCreateBackup={handleCreateBackup}
-              onRestoreBackup={handleRestoreBackup}
-              onDeleteBackup={handleDeleteBackup}
-            />
-          )}
+            {activeSection === 'overview' && (
+              <OverviewView
+                userName={user.name}
+                plants={plants}
+                onWaterPlant={handleWaterPlant}
+                onWaterAllDue={handleWaterAllDue}
+                onOpenAddModal={() => setIsAddModalOpen(true)}
+                onNavigate={setActiveSection}
+              />
+            )}
 
-          {activeSection === 'cli' && (
-            <CliSimulatorView
-              plants={plants}
-              onAddPlant={handleAddPlant}
-              onWaterPlant={handleWaterPlant}
-              onDeletePlant={handleDeletePlant}
-              onUpdateHealth={handleUpdateHealth}
-            />
-          )}
+            {activeSection === 'collection' && (
+              <CollectionView
+                plants={plants}
+                onWaterPlant={handleWaterPlant}
+                onUpdateHealth={handleUpdateHealth}
+                onDeletePlant={handleDeletePlant}
+                onOpenAddModal={() => setIsAddModalOpen(true)}
+                onResetSampleData={handleResetSampleData}
+              />
+            )}
 
-          {activeSection === 'sources' && <SourceFilesView />}
-        </main>
-      </div>
+            {activeSection === 'schedule' && (
+              <ScheduleView
+                plants={plants}
+                onWaterPlant={handleWaterPlant}
+                onWaterAllDue={handleWaterAllDue}
+              />
+            )}
+
+            {activeSection === 'backups' && (
+              <BackupView
+                plants={plants}
+                backups={backups}
+                onCreateBackup={handleCreateBackup}
+                onRestoreBackup={handleRestoreBackup}
+                onDeleteBackup={handleDeleteBackup}
+              />
+            )}
+
+            {activeSection === 'cli' && (
+              <CliSimulatorView
+                plants={plants}
+                onAddPlant={handleAddPlant}
+                onWaterPlant={handleWaterPlant}
+                onDeletePlant={handleDeletePlant}
+                onUpdateHealth={handleUpdateHealth}
+              />
+            )}
+
+            {activeSection === 'sources' && <SourceFilesView />}
+          </div>
+        )}
+      </main>
+
+      <footer className="border-t border-slate-200 px-4 py-5 text-center font-mono text-[11px] text-slate-500">
+        plants.db · {plants.length} records
+      </footer>
 
       <AddPlantModal
         isOpen={isAddModalOpen}

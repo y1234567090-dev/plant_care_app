@@ -1,7 +1,10 @@
 @import "tailwindcss";
 
+/* Dark mode is switched by data-theme="dark" on <html>, not by the OS setting. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
 @theme {
-  --font-display: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
   --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
@@ -13,6 +16,7 @@
    *   blue   (sky)     = water due today
    *   violet           = upcoming
    * Neutrals carry a faint green tint so they sit naturally beside the brand colour.
+   * These are the LIGHT theme values; the dark theme overrides them below.
    */
   --color-emerald-50: #effcf5;
   --color-emerald-100: #d6f7e5;
@@ -37,18 +41,116 @@
   --color-slate-900: #121c17;
 }
 
+/* ---------- Dark theme (default) ---------- */
+html[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* surfaces: slate-50 is the page, white is a card */
+  --color-white: #15231c;
+  --color-slate-50: #0f1914;
+  --color-slate-100: #1a2b22;
+  --color-slate-200: #263d31;
+  --color-slate-300: #36513f;
+  --color-slate-400: #6f8c7d;
+  --color-slate-500: #94ae9f;
+  --color-slate-600: #b2c8bb;
+  --color-slate-700: #cadcd1;
+  --color-slate-800: #e1ede6;
+  --color-slate-900: #f2f7f3;
+
+  --color-emerald-50: #14281f;
+  --color-emerald-100: #19332a;
+  --color-emerald-200: #22493a;
+  --color-emerald-300: #3d8a66;
+  --color-emerald-400: #52bf8c;
+  --color-emerald-500: #3b9a72;
+  --color-emerald-600: #2f7a55;
+  --color-emerald-700: #388a62;
+  --color-emerald-800: #8fe0b9;
+  --color-emerald-900: #b6efd2;
+
+  --color-amber-50: #2b2411;
+  --color-amber-100: #3a2f10;
+  --color-amber-200: #5c4813;
+  --color-amber-600: #f0b43c;
+  --color-amber-700: #f6c453;
+  --color-amber-900: #fde9b0;
+
+  --color-rose-50: #2e151a;
+  --color-rose-100: #40191f;
+  --color-rose-200: #6c2a33;
+  --color-rose-600: #f4768a;
+  --color-rose-700: #f9a0ad;
+
+  --color-red-50: #2e1517;
+  --color-red-100: #40191c;
+  --color-red-200: #6c2a30;
+  --color-red-600: #ef6a6f;
+
+  --color-sky-50: #10283a;
+  --color-sky-100: #123550;
+  --color-sky-200: #1b4f75;
+  --color-sky-600: #5cb8f0;
+  --color-sky-700: #8fd0f8;
+
+  --color-violet-50: #221c3a;
+  --color-violet-100: #2d2552;
+  --color-violet-200: #443a7a;
+  --color-violet-600: #a78bfa;
+  --color-violet-700: #c4b5fd;
+}
+
+/*
+ * Panels that must look the same in both themes (terminals, code viewers and
+ * the gradient banners) re-pin the light palette for everything inside them.
+ */
+.scale-light,
+html[data-theme="dark"] .scale-light {
+  --color-white: #ffffff;
+  --color-slate-50: #f6faf7;
+  --color-slate-100: #edf3ef;
+  --color-slate-200: #dde7e1;
+  --color-slate-300: #c3d2c9;
+  --color-slate-400: #8ea398;
+  --color-slate-500: #65796f;
+  --color-slate-600: #4c5f56;
+  --color-slate-700: #37473f;
+  --color-slate-800: #232f29;
+  --color-slate-900: #121c17;
+
+  --color-emerald-50: #effcf5;
+  --color-emerald-100: #d6f7e5;
+  --color-emerald-200: #aeeccb;
+  --color-emerald-300: #78dbaa;
+  --color-emerald-400: #3fc283;
+  --color-emerald-500: #1fa66a;
+  --color-emerald-600: #158a58;
+  --color-emerald-700: #126e47;
+  --color-emerald-800: #115739;
+  --color-emerald-900: #0d4630;
+}
+
 @layer base {
   html {
     font-family: var(--font-sans);
+    background-color: var(--color-slate-50);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
   h1, h2, h3, h4 {
     font-family: var(--font-display);
+    font-optical-sizing: auto;
   }
 }
 
 .tabular-nums {
   font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
