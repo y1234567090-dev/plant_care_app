@@ -32,4 +32,10 @@ export interface BackupBlobRecord {
   snapshot: PlantRecord[];
 }
 
-export type ActiveSection = 'collection' | 'schedule' | 'backups' | 'cli' | 'sources';
+export type ActiveSection =
+  | 'overview'
+  | 'collection'
+  | 'schedule'
+  | 'backups'
+  | 'cli'
+  | 'sources';
